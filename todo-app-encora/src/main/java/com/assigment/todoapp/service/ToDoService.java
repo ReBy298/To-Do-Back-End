@@ -2,6 +2,7 @@ package com.assigment.todoapp.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +15,6 @@ public class ToDoService {
 	
 	@Autowired //Inject 
 	private ToDoRepository todoRepository;
-	private Integer CounterId = 0;
 	private List<ToDoItem> todoItems;
 	
 	public ToDoService(ToDoRepository todoRepository) {
@@ -28,13 +28,13 @@ public class ToDoService {
             // Filter by done/undone
         	
             return todoRepository.findByDone(done);
-        } else if (name != null) {
-            // Filter by name or part of the name
-            return todoRepository.findByNameContainingIgnoreCase(name);
         } else if (priority != null) {
             // Filter by priority
             return todoRepository.findByPriority(priority);
-        } else {
+        }else if (name != null) {
+            // Filter by name or part of the name
+            return todoRepository.findByNameContainingIgnoreCase(name);
+        }  else {
             // Default query (no filters)
         	return todoRepository.fetchAllToDoItems();
         }
@@ -42,12 +42,12 @@ public class ToDoService {
 	}
 
 	public ToDoItem createToDoItem(ToDoItem todoItem) {
-        todoItem.setId((Integer)(CounterId++));
+        todoItem.setId(UUID.randomUUID());
         todoItems.add(todoItem);
         return todoItem;
     }
 
-	public ToDoItem updateToDoItem(Integer id, ToDoItem updatedToDoItem) {
+	public ToDoItem updateToDoItem(UUID id, ToDoItem updatedToDoItem) {
 		Optional<ToDoItem> existingToDoItem = todoItems.stream()
 	            .filter(item -> item.getId().equals(id))
 	            .findFirst();
@@ -57,13 +57,13 @@ public class ToDoService {
 	    }
 
 	    ToDoItem existingItem = existingToDoItem.get();
-	    existingItem.setName(updatedToDoItem.getName()); // Actualiza el texto
-	    existingItem.setDone(updatedToDoItem.isDone()); // Actualiza el estado de completado
-
+	    existingItem.setName(updatedToDoItem.getName()); 
+	    existingItem.setDone(updatedToDoItem.isDone()); 
+	    existingItem.setPriority(updatedToDoItem.getPriority());
 	    return existingItem;
 	}
 
-	public void deleteToDoItem(Integer id) {
+	public void deleteToDoItem(UUID id) {
 		todoItems.removeIf(item -> item.getId().equals(id));
 	}
 

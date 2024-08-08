@@ -1,6 +1,7 @@
 package com.assigment.todoapp.web;
 
 import java.util.List;
+import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -36,6 +37,7 @@ public class ToDoController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String priority ){
 		
+		
 		List<ToDoItem> todoItems = todoService.fetchAllToDoItems(done, name, priority);
 		
 		//return ResponseEntity.ok(todoItems);
@@ -50,13 +52,13 @@ public class ToDoController {
     }
 	
 	@PutMapping("/api/todoItems/{id}")
-    public ResponseEntity<ToDoItem> updateToDoItem(@PathVariable Integer id, @RequestBody ToDoItem updatedToDoItem) {
+    public ResponseEntity<ToDoItem> updateToDoItem(@PathVariable UUID id, @RequestBody ToDoItem updatedToDoItem) {
         ToDoItem updatedItem = todoService.updateToDoItem(id, updatedToDoItem);
         return ResponseEntity.ok(updatedItem);
     }
 
     @DeleteMapping("/api/todoItems/{id}")
-    public ResponseEntity<Void> deleteToDoItem(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteToDoItem(@PathVariable UUID id) {
         todoService.deleteToDoItem(id);
         return ResponseEntity.noContent().build();
     }

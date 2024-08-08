@@ -1,12 +1,10 @@
 package com.assigment.todoapp.domain;
-
 import java.time.LocalDate;
-
+import java.util.UUID;
 
 public class ToDoItem {
-
-	
-    private Integer id;
+    
+    private UUID id = UUID.randomUUID();
     
     private String name;
 
@@ -19,12 +17,12 @@ public class ToDoItem {
     private String priority;
     
     
-
-	public Integer getId() {
+    
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(Integer idCounter) {
+	public void setId(UUID idCounter) {
 		this.id = idCounter;
 	}
 

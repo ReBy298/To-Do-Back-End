@@ -18,7 +18,6 @@ public class ToDoRepository  { // interface
     }
 	
 	public List<ToDoItem>  fetchAllToDoItems () {
-		
 		return todoItems;
 	}
 
@@ -35,8 +34,8 @@ public class ToDoRepository  { // interface
     }
 
     public List<ToDoItem> findByPriority(String priority) {
-        return todoItems.stream()
-                .filter(item -> item.getPriority() == priority)
+    	return todoItems.stream()
+                .filter(item -> item.getPriority().equalsIgnoreCase(priority))
                 .collect(Collectors.toList());
     }
 
