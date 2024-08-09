@@ -1,5 +1,6 @@
 package com.assigment.todoapp.service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -43,6 +44,7 @@ public class ToDoService {
 
 	public ToDoItem createToDoItem(ToDoItem todoItem) {
         todoItem.setId(UUID.randomUUID());
+        todoItem.setCreationDate(LocalDate.now());
         todoItems.add(todoItem);
         return todoItem;
     }

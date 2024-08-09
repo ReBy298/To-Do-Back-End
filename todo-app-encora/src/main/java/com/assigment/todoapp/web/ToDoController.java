@@ -1,6 +1,9 @@
 package com.assigment.todoapp.web;
 
+import java.awt.print.Pageable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import org.springframework.http.ResponseEntity;
@@ -31,19 +34,41 @@ public class ToDoController {
 		
 	}
 	
+	
+	
 	@GetMapping("/api/todoItems")
 	public ResponseEntity<?> fetchAllToDoItems(
-            @RequestParam(required = false) Boolean done,
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String priority ){
-		
-		
-		List<ToDoItem> todoItems = todoService.fetchAllToDoItems(done, name, priority);
-		
-		//return ResponseEntity.ok(todoItems);
-		return ResponseEntity.ok(todoItems);
-		
+	        @RequestParam(required = false) Boolean done,
+	        @RequestParam(required = false) String name,
+	        @RequestParam(required = false) String priority,
+	        @RequestParam(defaultValue = "1") int page,
+	        @RequestParam(defaultValue = "10") int pageSize) {
+
+	    List<ToDoItem> todoItems = todoService.fetchAllToDoItems(done, name, priority);
+
+	    // Implement pagination
+	    int totalItems = todoItems.size();
+	    int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+	    int startIndex = (page - 1) * pageSize;
+	    int endIndex = Math.min(startIndex + pageSize, totalItems);
+
+	    List<ToDoItem> paginatedItems = todoItems.subList(startIndex, endIndex);
+	    
+	    int itemsOnPage = paginatedItems.size();
+
+	 // Create a map to hold both items and pagination info
+	    Map<String, Object> response = new HashMap<>();
+	    response.put("items", paginatedItems);
+	    response.put("currentPage", page);
+	    response.put("totalItems", totalItems);
+	    response.put("totalPages", totalPages);
+	    response.put("itemsOnPage", itemsOnPage);
+	    
+
+	    return ResponseEntity.ok(response);
 	}
+	
+	
 	
 	@PostMapping("/api/todoItems")
     public ResponseEntity<ToDoItem> createToDoItem(@RequestBody ToDoItem todoItem) {

@@ -17,6 +17,8 @@ public class ToDoItem {
     private String priority;
     
     
+    private LocalDate creationDate;
+    
     
 	public UUID getId() {
 		return id;
@@ -64,6 +66,14 @@ public class ToDoItem {
 
 	public void setPriority(String priority) {
 		this.priority = priority;
+	}
+
+	public LocalDate getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(LocalDate creationDate) {
+		this.creationDate = creationDate;
 	}
 	
 }
