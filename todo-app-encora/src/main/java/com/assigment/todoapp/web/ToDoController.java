@@ -38,13 +38,13 @@ public class ToDoController {
 	
 	@GetMapping("/api/todoItems")
 	public ResponseEntity<?> fetchAllToDoItems(
-	        @RequestParam(required = false) Boolean done,
-	        @RequestParam(required = false) String name,
-	        @RequestParam(required = false) String priority,
+			@RequestParam(defaultValue = "All") String state,
+	        @RequestParam(defaultValue = "") String name,
+	        @RequestParam(defaultValue = "All") String priority,
 	        @RequestParam(defaultValue = "1") int page,
 	        @RequestParam(defaultValue = "10") int pageSize) {
 
-	    List<ToDoItem> todoItems = todoService.fetchAllToDoItems(done, name, priority);
+	    List<ToDoItem> todoItems = todoService.fetchAllToDoItems(state, name, priority);
 
 	    // Implement pagination
 	    int totalItems = todoItems.size();

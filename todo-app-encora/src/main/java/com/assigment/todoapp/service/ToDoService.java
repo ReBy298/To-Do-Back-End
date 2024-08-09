@@ -4,6 +4,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,29 +19,38 @@ public class ToDoService {
 	@Autowired //Inject 
 	private ToDoRepository todoRepository;
 	private List<ToDoItem> todoItems;
+	public boolean aux;
 	
 	public ToDoService(ToDoRepository todoRepository) {
         this.todoItems = todoRepository.fetchAllToDoItems();
     }
 	
-	public List<ToDoItem> fetchAllToDoItems (Boolean done, String name, String priority) {
-		
-		// Modify the query based on the provided parameters
-        if (done != null) {
-            // Filter by done/undone
-        	
-            return todoRepository.findByDone(done);
-        } else if (priority != null) {
-            // Filter by priority
-            return todoRepository.findByPriority(priority);
-        }else if (name != null) {
-            // Filter by name or part of the name
-            return todoRepository.findByNameContainingIgnoreCase(name);
-        }  else {
-            // Default query (no filters)
-        	return todoRepository.fetchAllToDoItems();
-        }
-		
+	public List<ToDoItem> fetchAllToDoItems (String state, String name, String priority) {
+	   
+	    Stream<ToDoItem> stream = todoRepository.fetchAllToDoItems().stream();
+
+	   
+	    if (!state.equals("All")) {
+	
+	        if(state.equals("Done")) {
+	        	aux = true;
+	        }else {
+	        	aux = false;
+	        }
+	        stream = stream.filter(item -> item.isDone() == aux);
+	    }
+
+	   
+	    if (!priority.equals("All")) {
+	        stream = stream.filter(item -> item.getPriority().equals(priority));
+	    }
+
+	   
+	    if (!name.equals("")) {
+	        stream = stream.filter(item -> item.getName().contains(name));
+	    }
+
+	    return stream.collect(Collectors.toList());
 	}
 
 	public ToDoItem createToDoItem(ToDoItem todoItem) {

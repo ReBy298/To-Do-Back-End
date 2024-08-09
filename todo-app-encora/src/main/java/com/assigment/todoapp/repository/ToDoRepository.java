@@ -21,9 +21,9 @@ public class ToDoRepository  { // interface
 		return todoItems;
 	}
 
-	public List<ToDoItem> findByDone(Boolean done) {
+	public List<ToDoItem> findByDone(boolean aux) {
         return todoItems.stream()
-                .filter(item -> item.isDone() == done)
+                .filter(item -> item.isDone() == aux)
                 .collect(Collectors.toList());
     }
 
