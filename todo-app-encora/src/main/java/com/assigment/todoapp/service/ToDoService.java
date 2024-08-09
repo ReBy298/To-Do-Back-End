@@ -59,6 +59,20 @@ public class ToDoService {
         todoItems.add(todoItem);
         return todoItem;
     }
+	
+	public ToDoItem updateFlag(UUID id, ToDoItem todoItem) {
+		Optional<ToDoItem> existingToDoItem = todoItems.stream()
+	            .filter(item -> item.getId().equals(id))
+	            .findFirst();
+
+	    if (existingToDoItem.isEmpty()) {
+	        throw new RuntimeException("ToDoItem no encontrado");
+	    }
+
+	    ToDoItem existingItem = existingToDoItem.get();
+	    existingItem.setDone(todoItem.isDone()); 
+	    return existingItem;
+	}
 
 	public ToDoItem updateToDoItem(UUID id, ToDoItem updatedToDoItem) {
 		Optional<ToDoItem> existingToDoItem = todoItems.stream()

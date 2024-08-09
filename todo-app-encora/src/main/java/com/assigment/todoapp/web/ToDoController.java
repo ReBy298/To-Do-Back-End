@@ -36,7 +36,7 @@ public class ToDoController {
 	
 	
 	
-	@GetMapping("/api/todoItems")
+	@GetMapping("/api/todos")
 	public ResponseEntity<?> fetchAllToDoItems(
 			@RequestParam(defaultValue = "All") String state,
 	        @RequestParam(defaultValue = "") String name,
@@ -70,15 +70,26 @@ public class ToDoController {
 	
 	
 	
-	@PostMapping("/api/todoItems")
+	@PostMapping("/api/todos")
     public ResponseEntity<ToDoItem> createToDoItem(@RequestBody ToDoItem todoItem) {
         ToDoItem createdToDoItem = todoService.createToDoItem(todoItem);
         return ResponseEntity.ok(createdToDoItem);
     }
 	
-	@PutMapping("/api/todoItems/{id}")
+	@PostMapping("/api/todos/{id}/done")
+    public ResponseEntity<ToDoItem> updateFlag(@PathVariable UUID id,@RequestBody ToDoItem todoItem) {
+        ToDoItem updatedItem = todoService.updateFlag(id, todoItem);
+        return ResponseEntity.ok(updatedItem);
+    }
+	
+	@PutMapping("/api/todos/{id}")
     public ResponseEntity<ToDoItem> updateToDoItem(@PathVariable UUID id, @RequestBody ToDoItem updatedToDoItem) {
         ToDoItem updatedItem = todoService.updateToDoItem(id, updatedToDoItem);
+        return ResponseEntity.ok(updatedItem);
+    }
+	@PutMapping("/api/todos/{id}/undone")
+    public ResponseEntity<ToDoItem> updateFlag2(@PathVariable UUID id, @RequestBody ToDoItem updatedToDoItem) {
+        ToDoItem updatedItem = todoService.updateFlag(id, updatedToDoItem);
         return ResponseEntity.ok(updatedItem);
     }
 
