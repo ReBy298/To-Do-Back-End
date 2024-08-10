@@ -1,6 +1,6 @@
 package com.assigment.todoapp.service;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -55,7 +55,10 @@ public class ToDoService {
 
 	public ToDoItem createToDoItem(ToDoItem todoItem) {
         todoItem.setId(UUID.randomUUID());
-        todoItem.setCreationDate(LocalDate.now());
+        todoItem.setCreationDate(LocalDateTime.now());
+        todoItem.setDone(false);
+        LocalDateTime  dateTime = todoItem.getDueDate();
+  
         todoItems.add(todoItem);
         return todoItem;
     }
@@ -68,10 +71,19 @@ public class ToDoService {
 	    if (existingToDoItem.isEmpty()) {
 	        throw new RuntimeException("ToDoItem no encontrado");
 	    }
-
 	    ToDoItem existingItem = existingToDoItem.get();
-	    existingItem.setDone(todoItem.isDone()); 
-	    return existingItem;
+	    
+	    if(existingItem.isDone()== false) {
+	    	existingItem.setDone(todoItem.isDone()); 
+		    existingItem.setDoneDate(LocalDateTime.now());
+		    return existingItem;
+	    }else {
+	    	existingItem.setDone(todoItem.isDone()); 
+		    existingItem.setDoneDate(null);
+		    return existingItem;
+	    }
+	    
+	    
 	}
 
 	public ToDoItem updateToDoItem(UUID id, ToDoItem updatedToDoItem) {

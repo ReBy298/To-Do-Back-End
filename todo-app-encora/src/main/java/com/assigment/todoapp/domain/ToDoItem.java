@@ -1,5 +1,5 @@
 package com.assigment.todoapp.domain;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public class ToDoItem {
@@ -8,16 +8,16 @@ public class ToDoItem {
     
     private String name;
 
-    private LocalDate dueDate;
+    private LocalDateTime dueDate;
 
     private boolean done;
 
-    private LocalDate doneDate;
+    private LocalDateTime doneDate;
 
     private String priority;
     
     
-    private LocalDate creationDate;
+    private LocalDateTime creationDate;
     
     
 	public UUID getId() {
@@ -36,11 +36,11 @@ public class ToDoItem {
 		this.name = name;
 	}
 
-	public LocalDate getDueDate() {
+	public LocalDateTime getDueDate() {
 		return dueDate;
 	}
 
-	public void setDueDate(LocalDate dueDate) {
+	public void setDueDate(LocalDateTime dueDate) {
 		this.dueDate = dueDate;
 	}
 
@@ -52,11 +52,11 @@ public class ToDoItem {
 		this.done = done;
 	}
 
-	public LocalDate getDoneDate() {
+	public LocalDateTime getDoneDate() {
 		return doneDate;
 	}
 
-	public void setDoneDate(LocalDate doneDate) {
+	public void setDoneDate(LocalDateTime doneDate) {
 		this.doneDate = doneDate;
 	}
 
@@ -68,11 +68,11 @@ public class ToDoItem {
 		this.priority = priority;
 	}
 
-	public LocalDate getCreationDate() {
+	public LocalDateTime getCreationDate() {
 		return creationDate;
 	}
 
-	public void setCreationDate(LocalDate creationDate) {
+	public void setCreationDate(LocalDateTime creationDate) {
 		this.creationDate = creationDate;
 	}
 	

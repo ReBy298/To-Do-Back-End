@@ -1,6 +1,5 @@
 package com.assigment.todoapp.web;
 
-import java.awt.print.Pageable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -93,7 +92,7 @@ public class ToDoController {
         return ResponseEntity.ok(updatedItem);
     }
 
-    @DeleteMapping("/api/todoItems/{id}")
+    @DeleteMapping("/api/todos/{id}")
     public ResponseEntity<Void> deleteToDoItem(@PathVariable UUID id) {
         todoService.deleteToDoItem(id);
         return ResponseEntity.noContent().build();
