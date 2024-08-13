@@ -1,5 +1,7 @@
 package com.assigment.todoapp.domain;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class ToDoItem {
@@ -65,7 +67,13 @@ public class ToDoItem {
 	}
 
 	public void setPriority(String priority) {
-		this.priority = priority;
+	    List<String> validPriorities = Arrays.asList("Low", "Medium", "High");
+
+	    if (validPriorities.contains(priority)) {
+	        this.priority = priority;
+	    } else {
+	        throw new IllegalArgumentException("Invalid priority: " + priority);
+	    }
 	}
 
 	public LocalDateTime getCreationDate() {

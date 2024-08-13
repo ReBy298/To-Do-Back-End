@@ -1,6 +1,7 @@
 package com.assigment.todoapp.service;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -57,8 +58,8 @@ public class ToDoService {
         todoItem.setId(UUID.randomUUID());
         todoItem.setCreationDate(LocalDateTime.now());
         todoItem.setDone(false);
-        LocalDateTime  dateTime = todoItem.getDueDate();
-  
+
+        
         todoItems.add(todoItem);
         return todoItem;
     }
@@ -99,12 +100,21 @@ public class ToDoService {
 	    existingItem.setName(updatedToDoItem.getName()); 
 	    existingItem.setDone(updatedToDoItem.isDone()); 
 	    existingItem.setPriority(updatedToDoItem.getPriority());
+	    existingItem.setDueDate(updatedToDoItem.getDueDate());
 	    return existingItem;
 	}
 
 	public void deleteToDoItem(UUID id) {
 		todoItems.removeIf(item -> item.getId().equals(id));
 	}
+
+	public List<ToDoItem> fetchAllDoneToDoItems(String priority) {
+        List<ToDoItem> doneItems = todoItems.stream()
+            .filter(item -> item.isDone() && (priority.equals("All") || item.getPriority().equals(priority)))
+            .collect(Collectors.toList());
+
+        return doneItems;
+    }
 
 	
 	
