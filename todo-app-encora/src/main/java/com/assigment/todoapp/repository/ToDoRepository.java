@@ -7,6 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import com.assigment.todoapp.domain.ToDoItem;
 					
+
+/* 
+ @Repository 
+public interface ToDoRepository extends JpaRepository<ToDoItem, UUID> to create the interface and use de Database
+*/
+
 @Repository
 public class ToDoRepository  { // interface 
 	

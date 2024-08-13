@@ -1,7 +1,7 @@
 package com.assigment.todoapp.service;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -19,11 +19,15 @@ public class ToDoService {
 	
 	@Autowired //Inject 
 	private ToDoRepository todoRepository;
-	private List<ToDoItem> todoItems;
+	private List<ToDoItem> todoItems = new ArrayList<>();
 	public boolean aux;
 	
 	public ToDoService(ToDoRepository todoRepository) {
         this.todoItems = todoRepository.fetchAllToDoItems();
+    }
+	
+    public void setTodoItems(List<ToDoItem> todoItems) {
+        this.todoItems = todoItems;
     }
 	
 	public List<ToDoItem> fetchAllToDoItems (String state, String name, String priority) {
@@ -115,6 +119,12 @@ public class ToDoService {
 
         return doneItems;
     }
+
+	public List<ToDoItem> fetchAllItems() {
+		List<ToDoItem> doneItems = todoItems.stream().collect(Collectors.toList());
+
+	    return doneItems;
+	}
 
 	
 	

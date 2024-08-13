@@ -4,24 +4,26 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
+// @Entity for a posible database in the future
 public class ToDoItem {
     
     private UUID id = UUID.randomUUID();
     
-    private String name;
+    private String name = "";
 
-    private LocalDateTime dueDate;
+    private LocalDateTime dueDate = null;
 
-    private boolean done;
+    private boolean done = false;
 
-    private LocalDateTime doneDate;
+    private LocalDateTime doneDate = null;
 
-    private String priority;
+    private String priority = "All";
     
     
-    private LocalDateTime creationDate;
+    private LocalDateTime creationDate = null;
     
-    
+  
+
 	public UUID getId() {
 		return id;
 	}

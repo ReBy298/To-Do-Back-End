@@ -1,7 +1,10 @@
 package com.assigment.todoapp.web;
 
+import java.net.URI;
 import java.time.Duration;
-import java.util.Arrays;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.assigment.todoapp.domain.ToDoItem;
 import com.assigment.todoapp.service.ToDoService;
@@ -36,9 +40,7 @@ public class ToDoController {
 		this.todoService = todoService;
 		
 	}
-	
-	
-	
+
 	@GetMapping("/api/todos")
 	public ResponseEntity<?> fetchAllToDoItems(
 			@RequestParam(defaultValue = "All") String state,
@@ -71,7 +73,15 @@ public class ToDoController {
 	                }
 	                comparison1 = Integer.compare(priority1Value, priority2Value);
 	            } else if (sortBy1.equals("dueDate")) {
-	                comparison1 = t1.getDueDate().compareTo(t2.getDueDate());
+	                if (t1.getDueDate() == null && t2.getDueDate() == null) {
+	                    comparison1 = 0;
+	                } else if (t1.getDueDate() == null) {
+	                    comparison1 = -1;
+	                } else if (t2.getDueDate() == null) {
+	                    comparison1 = 1;
+	                } else {
+	                    comparison1 = t1.getDueDate().compareTo(t2.getDueDate());
+	                }
 	                if (order1.equals("desc")) {
 	                    comparison1 = -comparison1;
 	                }
@@ -90,7 +100,15 @@ public class ToDoController {
 	                    }
 	                    comparison2 = Integer.compare(priority1Value, priority2Value);
 	                } else if (sortBy2.equals("dueDate")) {
-	                    comparison2 = t1.getDueDate().compareTo(t2.getDueDate());
+	                    if (t1.getDueDate() == null && t2.getDueDate() == null) {
+	                        comparison2 = 0;
+	                    } else if (t1.getDueDate() == null) {
+	                        comparison2 = -1;
+	                    } else if (t2.getDueDate() == null) {
+	                        comparison2 = 1;
+	                    } else {
+	                        comparison2 = t1.getDueDate().compareTo(t2.getDueDate());
+	                    }
 	                    if (order2.equals("desc")) {
 	                        comparison2 = -comparison2;
 	                    }
@@ -123,19 +141,61 @@ public class ToDoController {
 	    return ResponseEntity.ok(response);
 	}
 	
-	
-	
 	@PostMapping("/api/todos")
-    public ResponseEntity<ToDoItem> createToDoItem(@RequestBody ToDoItem todoItem) {
-        ToDoItem createdToDoItem = todoService.createToDoItem(todoItem);
-        return ResponseEntity.ok(createdToDoItem);
-    }
+	public ResponseEntity<ToDoItem> createToDoItem(@RequestBody ToDoItem todoItem) {
+	    if (todoItem == null || todoItem.getName() == null || todoItem.getName().isEmpty()) {
+	        return ResponseEntity.badRequest().body(null);
+	    }
+	    ToDoItem createdToDoItem = todoService.createToDoItem(todoItem);
+	    URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+	        .path("/{id}")
+	        .buildAndExpand(createdToDoItem.getId())
+	        .toUri();
+	    return ResponseEntity.created(location).body(createdToDoItem);
+	}
 	
 	@PostMapping("/api/todos/{id}/done")
     public ResponseEntity<ToDoItem> updateFlag(@PathVariable UUID id,@RequestBody ToDoItem todoItem) {
         ToDoItem updatedItem = todoService.updateFlag(id, todoItem);
         return ResponseEntity.ok(updatedItem);
     }
+	
+	@GetMapping("/api/todos/colorFlags")
+	public ResponseEntity<List<Map<String, Object>>> fetchToDoItemsWithFlags() {
+	    // Fetch all ToDo items
+	    List<ToDoItem> toDoItems = todoService.fetchAllItems();
+
+	    // Create a list to hold the ToDo items with flags
+	    List<Map<String, Object>> toDoItemFlags = new ArrayList<>();
+
+	    for (ToDoItem item : toDoItems) {
+	        Map<String, Object> itemFlag = new HashMap<>();
+	        itemFlag.put("item", item);
+
+	        // Set the flag based on the difference in weeks
+	        if (item.getDueDate() == null) {
+	            itemFlag.put("flag", 0);
+	        } else {
+	            // Calculate the difference in weeks between the due date and today
+	            long weeksBetween = ChronoUnit.WEEKS.between(LocalDate.now(), item.getDueDate());
+
+	            if (weeksBetween <= 1) {
+	                itemFlag.put("flag", 1);
+	            } else if (weeksBetween <= 2) {
+	                itemFlag.put("flag", 2);
+	            } else {
+	                itemFlag.put("flag", 3);
+	            }
+	        }
+
+	        toDoItemFlags.add(itemFlag);
+	    }
+
+	    return ResponseEntity.ok(toDoItemFlags);
+	}
+
+
+	
 	@GetMapping("/api/todos/averageTime")
 	public ResponseEntity<?> fetchAverageCompletionTime() {
 
@@ -173,10 +233,14 @@ public class ToDoController {
 	}
 	
 	@PutMapping("/api/todos/{id}")
-    public ResponseEntity<ToDoItem> updateToDoItem(@PathVariable UUID id, @RequestBody ToDoItem updatedToDoItem) {
-        ToDoItem updatedItem = todoService.updateToDoItem(id, updatedToDoItem);
-        return ResponseEntity.ok(updatedItem);
-    }
+	public ResponseEntity<ToDoItem> updateToDoItem(@PathVariable UUID id, @RequestBody ToDoItem updatedToDoItem) {
+	    if (id == null || updatedToDoItem == null || updatedToDoItem.getName() == null || updatedToDoItem.getName().isEmpty()) {
+	        return ResponseEntity.badRequest().body(null);
+	    }
+	    ToDoItem updatedItem = todoService.updateToDoItem(id, updatedToDoItem);
+	    return ResponseEntity.ok(updatedItem);
+	}
+
 	@PutMapping("/api/todos/{id}/undone")
     public ResponseEntity<ToDoItem> updateFlag2(@PathVariable UUID id, @RequestBody ToDoItem updatedToDoItem) {
         ToDoItem updatedItem = todoService.updateFlag(id, updatedToDoItem);
