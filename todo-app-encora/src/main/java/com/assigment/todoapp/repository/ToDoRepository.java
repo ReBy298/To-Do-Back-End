@@ -7,6 +7,12 @@ import org.springframework.stereotype.Repository;
 
 import com.assigment.todoapp.domain.ToDoItem;
 					
+
+/* 
+ @Repository 
+public interface ToDoRepository extends JpaRepository<ToDoItem, UUID> to create the interface and use de Database
+*/
+
 @Repository
 public class ToDoRepository  { // interface 
 	
@@ -21,9 +27,9 @@ public class ToDoRepository  { // interface
 		return todoItems;
 	}
 
-	public List<ToDoItem> findByDone(Boolean done) {
+	public List<ToDoItem> findByDone(boolean aux) {
         return todoItems.stream()
-                .filter(item -> item.isDone() == done)
+                .filter(item -> item.isDone() == aux)
                 .collect(Collectors.toList());
     }
 

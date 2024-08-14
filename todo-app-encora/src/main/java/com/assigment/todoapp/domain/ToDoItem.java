@@ -1,23 +1,29 @@
 package com.assigment.todoapp.domain;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
+// @Entity for a posible database in the future
 public class ToDoItem {
     
     private UUID id = UUID.randomUUID();
     
-    private String name;
+    private String name = "";
 
-    private LocalDate dueDate;
+    private LocalDateTime dueDate = null;
 
-    private boolean done;
+    private boolean done = false;
 
-    private LocalDate doneDate;
+    private LocalDateTime doneDate = null;
 
-    private String priority;
+    private String priority = "All";
     
     
+    private LocalDateTime creationDate = null;
     
+  
+
 	public UUID getId() {
 		return id;
 	}
@@ -34,11 +40,11 @@ public class ToDoItem {
 		this.name = name;
 	}
 
-	public LocalDate getDueDate() {
+	public LocalDateTime getDueDate() {
 		return dueDate;
 	}
 
-	public void setDueDate(LocalDate dueDate) {
+	public void setDueDate(LocalDateTime dueDate) {
 		this.dueDate = dueDate;
 	}
 
@@ -50,11 +56,11 @@ public class ToDoItem {
 		this.done = done;
 	}
 
-	public LocalDate getDoneDate() {
+	public LocalDateTime getDoneDate() {
 		return doneDate;
 	}
 
-	public void setDoneDate(LocalDate doneDate) {
+	public void setDoneDate(LocalDateTime doneDate) {
 		this.doneDate = doneDate;
 	}
 
@@ -63,7 +69,21 @@ public class ToDoItem {
 	}
 
 	public void setPriority(String priority) {
-		this.priority = priority;
+	    List<String> validPriorities = Arrays.asList("Low", "Medium", "High");
+
+	    if (validPriorities.contains(priority)) {
+	        this.priority = priority;
+	    } else {
+	        throw new IllegalArgumentException("Invalid priority: " + priority);
+	    }
+	}
+
+	public LocalDateTime getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(LocalDateTime creationDate) {
+		this.creationDate = creationDate;
 	}
 	
 }
