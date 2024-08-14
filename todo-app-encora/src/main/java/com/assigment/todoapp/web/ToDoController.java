@@ -42,104 +42,26 @@ public class ToDoController {
 	}
 
 	@GetMapping("/api/todos")
-	public ResponseEntity<?> fetchAllToDoItems(
-			@RequestParam(defaultValue = "All") String state,
-	        @RequestParam(defaultValue = "") String name,
-	        @RequestParam(defaultValue = "All") String priority,
-	        @RequestParam(defaultValue = "1") int page,
-	        @RequestParam(defaultValue = "10") int pageSize,
-	        @RequestParam(defaultValue = "dueDate") String sortBy1, 
-	        @RequestParam(defaultValue = "asc") String order1, 
-	        @RequestParam(defaultValue = "priority") String sortBy2, 
-	        @RequestParam(defaultValue = "asc") String order2) {
+    public ResponseEntity<?> fetchAllToDoItems(
+            @RequestParam(defaultValue = "All") String state,
+            @RequestParam(defaultValue = "") String name,
+            @RequestParam(defaultValue = "All") String priority,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(defaultValue = "dueDate") String sortBy1,
+            @RequestParam(defaultValue = "asc") String order1,
+            @RequestParam(defaultValue = "priority") String sortBy2,
+            @RequestParam(defaultValue = "asc") String order2) {
 
-	    List<ToDoItem> todoItems = todoService.fetchAllToDoItems(state, name, priority);
-	    
-	    Collections.sort(todoItems, new Comparator<ToDoItem>() {
-	        @Override
-	        public int compare(ToDoItem t1, ToDoItem t2) {
-	            Map<String, Integer> priorityValues = new HashMap<>();
-	            priorityValues.put("Low", 1);
-	            priorityValues.put("Medium", 2);
-	            priorityValues.put("High", 3);
+        List<ToDoItem> todoItems = todoService.fetchAllToDoItems(state, name, priority);
+        
+        List<ToDoItem> sortedItems = todoService.sortToDoItems(todoItems, sortBy1, order1, sortBy2, order2);
 
-	            int comparison1 = 0;
-	            if (sortBy1.equals("priority")) {
-	                int priority1Value = priorityValues.getOrDefault(t1.getPriority(), 0);
-	                int priority2Value = priorityValues.getOrDefault(t2.getPriority(), 0);
-	                if (order1.equals("desc")) {
-	                    priority1Value = 4 - priority1Value;
-	                    priority2Value = 4 - priority2Value;
-	                }
-	                comparison1 = Integer.compare(priority1Value, priority2Value);
-	            } else if (sortBy1.equals("dueDate")) {
-	                if (t1.getDueDate() == null && t2.getDueDate() == null) {
-	                    comparison1 = 0;
-	                } else if (t1.getDueDate() == null) {
-	                    comparison1 = -1;
-	                } else if (t2.getDueDate() == null) {
-	                    comparison1 = 1;
-	                } else {
-	                    comparison1 = t1.getDueDate().compareTo(t2.getDueDate());
-	                }
-	                if (order1.equals("desc")) {
-	                    comparison1 = -comparison1;
-	                }
-	            }
+        Map<String, Object> response = todoService.paginateToDoItems(sortedItems, page, pageSize);
 
-	            if (comparison1 != 0) {
-	                return comparison1;
-	            } else {
-	                int comparison2 = 0;
-	                if (sortBy2.equals("priority")) {
-	                    int priority1Value = priorityValues.getOrDefault(t1.getPriority(), 0);
-	                    int priority2Value = priorityValues.getOrDefault(t2.getPriority(), 0);
-	                    if (order2.equals("desc")) {
-	                        priority1Value = 4 - priority1Value;
-	                        priority2Value = 4 - priority2Value;
-	                    }
-	                    comparison2 = Integer.compare(priority1Value, priority2Value);
-	                } else if (sortBy2.equals("dueDate")) {
-	                    if (t1.getDueDate() == null && t2.getDueDate() == null) {
-	                        comparison2 = 0;
-	                    } else if (t1.getDueDate() == null) {
-	                        comparison2 = -1;
-	                    } else if (t2.getDueDate() == null) {
-	                        comparison2 = 1;
-	                    } else {
-	                        comparison2 = t1.getDueDate().compareTo(t2.getDueDate());
-	                    }
-	                    if (order2.equals("desc")) {
-	                        comparison2 = -comparison2;
-	                    }
-	                }
-	                return comparison2;
-	            }
-	        }
-	    });
+        return ResponseEntity.ok(response);
+    }
 
-
-	    // Implement pagination
-	    int totalItems = todoItems.size();
-	    int totalPages = (int) Math.ceil((double) totalItems / pageSize);
-	    int startIndex = (page - 1) * pageSize;
-	    int endIndex = Math.min(startIndex + pageSize, totalItems);
-
-	    List<ToDoItem> paginatedItems = todoItems.subList(startIndex, endIndex);
-	    
-	    int itemsOnPage = paginatedItems.size();
-
-	 // Create a map to hold both items and pagination info
-	    Map<String, Object> response = new HashMap<>();
-	    response.put("items", paginatedItems);
-	    response.put("currentPage", page);
-	    response.put("totalItems", totalItems);
-	    response.put("totalPages", totalPages);
-	    response.put("itemsOnPage", itemsOnPage);
-	    
-
-	    return ResponseEntity.ok(response);
-	}
 	
 	@PostMapping("/api/todos")
 	public ResponseEntity<ToDoItem> createToDoItem(@RequestBody ToDoItem todoItem) {
@@ -205,8 +127,6 @@ public class ToDoController {
 	    List<ToDoItem> doneItemsMedium = todoService.fetchAllDoneToDoItems("Medium");
 	    List<ToDoItem> doneItemsLow = todoService.fetchAllDoneToDoItems("Low");
 	    
-	  
-
 	    // Calculate the average time between creation and done for all priorities
 	    double averageDurationAll = calculateAverageDuration(doneItemsAll);
 	    double averageDurationHigh = calculateAverageDuration(doneItemsHigh);

@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -410,6 +411,64 @@ public class ToDoServiceTests {
         assertEquals(0, items.size());
     }
 
+    @Test
+    public void testPaginateToDoItems_FirstPage() {
+        List<ToDoItem> items = createTestToDoItems(25); // Crear una lista de 25 elementos
+        int page = 1;
+        int pageSize = 10;
+
+        Map<String, Object> response = toDoService.paginateToDoItems(items, page, pageSize);
+
+        assertEquals(10, ((List<?>) response.get("items")).size(), "Items on the first page should be 10");
+        assertEquals(1, response.get("currentPage"), "Current page should be 1");
+        assertEquals(25, response.get("totalItems"), "Total items should be 25");
+        assertEquals(3, response.get("totalPages"), "Total pages should be 3");
+        assertEquals(10, response.get("itemsOnPage"), "Items on the page should be 10");
+    }
+
+    @Test
+    public void testPaginateToDoItems_SecondPage() {
+        List<ToDoItem> items = createTestToDoItems(25);
+        int page = 2;
+        int pageSize = 10;
+
+        Map<String, Object> response = toDoService.paginateToDoItems(items, page, pageSize);
+
+        assertEquals(10, ((List<?>) response.get("items")).size(), "Items on the second page should be 10");
+        assertEquals(2, response.get("currentPage"), "Current page should be 2");
+        assertEquals(25, response.get("totalItems"), "Total items should be 25");
+        assertEquals(3, response.get("totalPages"), "Total pages should be 3");
+        assertEquals(10, response.get("itemsOnPage"), "Items on the page should be 10");
+    }
+
+    @Test
+    public void testPaginateToDoItems_ThirdPage() {
+        List<ToDoItem> items = createTestToDoItems(25);
+        int page = 3;
+        int pageSize = 10;
+
+        Map<String, Object> response = toDoService.paginateToDoItems(items, page, pageSize);
+
+        assertEquals(5, ((List<?>) response.get("items")).size(), "Items on the third page should be 5");
+        assertEquals(3, response.get("currentPage"), "Current page should be 3");
+        assertEquals(25, response.get("totalItems"), "Total items should be 25");
+        assertEquals(3, response.get("totalPages"), "Total pages should be 3");
+        assertEquals(5, response.get("itemsOnPage"), "Items on the page should be 5");
+    }
+
+
+
+    private List<ToDoItem> createTestToDoItems(int count) {
+        List<ToDoItem> items = new ArrayList<>();
+        for (int i = 1; i <= count; i++) {
+        	ToDoItem item = new ToDoItem();
+            item.setName("Test 1");
+            item.setPriority("High");
+            item.setDone(true);
+            items.add(item);
+        }
+        return items;
+    }
  
 
 
