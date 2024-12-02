@@ -1,14 +1,10 @@
 package com.assigment.todoapp.service;
 
+import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -20,214 +16,177 @@ import com.assigment.todoapp.repository.ToDoRepository;
 
 @Service
 public class ToDoService {
-	
-	@Autowired //Inject 
-	private ToDoRepository todoRepository;
-	private List<ToDoItem> todoItems = new ArrayList<>();
-	public boolean aux;
-	
+
+	private final ToDoRepository todoRepository;
+
+	@Autowired
 	public ToDoService(ToDoRepository todoRepository) {
-        this.todoItems = todoRepository.fetchAllToDoItems();
-    }
-	
-    public void setTodoItems(List<ToDoItem> todoItems) {
-        this.todoItems = todoItems;
-    }
-	
-	public List<ToDoItem> fetchAllToDoItems (String state, String name, String priority) {
-	   
-	    Stream<ToDoItem> stream = todoRepository.fetchAllToDoItems().stream();
-
-	   
-	    if (!state.equals("All")) {
-	
-	        if(state.equals("Done")) {
-	        	aux = true;
-	        }else {
-	        	aux = false;
-	        }
-	        stream = stream.filter(item -> item.isDone() == aux);
-	    }
-
-	   
-	    if (!priority.equals("All")) {
-	        stream = stream.filter(item -> item.getPriority().equals(priority));
-	    }
-
-	   
-	    if (!name.equals("")) {
-	        stream = stream.filter(item -> item.getName().contains(name));
-	    }
-
-	    return stream.collect(Collectors.toList());
+		this.todoRepository = todoRepository;
 	}
-	
 
+	public List<ToDoItem> fetchAllToDoItems(String state, String name, String priority) {
+		Stream<ToDoItem> stream = todoRepository.fetchAllToDoItems().stream();
 
-	public Map<String, Object> paginateToDoItems(
-	            List<ToDoItem> todoItems,
-	            int page,
-	            int pageSize) {
+		if (!"All".equals(state)) {
+			boolean isDone = "Done".equals(state);
+			stream = stream.filter(item -> item.isDone() == isDone);
+		}
 
-	        int totalItems = todoItems.size();
-	        int totalPages = (int) Math.ceil((double) totalItems / pageSize);
-	        int startIndex = (page - 1) * pageSize;
-	        int endIndex = Math.min(startIndex + pageSize, totalItems);
+		if (!"All".equals(priority)) {
+			stream = stream.filter(item -> item.getPriority().equals(priority));
+		}
 
-	        List<ToDoItem> paginatedItems = todoItems.subList(startIndex, endIndex);
-	        int itemsOnPage = paginatedItems.size();
+		if (!name.isEmpty()) {
+			stream = stream.filter(item -> item.getName().contains(name));
+		}
 
-	        Map<String, Object> response = new HashMap<>();
-	        response.put("items", paginatedItems);
-	        response.put("currentPage", page);
-	        response.put("totalItems", totalItems);
-	        response.put("totalPages", totalPages);
-	        response.put("itemsOnPage", itemsOnPage);
-
-	        return response;
+		return stream.collect(Collectors.toList());
 	}
-	
-	public List<ToDoItem> sortToDoItems(
-            List<ToDoItem> todoItems,
-            String sortBy1,
-            String order1,
-            String sortBy2,
-            String order2) {
 
-        Collections.sort(todoItems, new Comparator<ToDoItem>() {
-            @Override
-            public int compare(ToDoItem t1, ToDoItem t2) {
-                Map<String, Integer> priorityValues = new HashMap<>();
-                priorityValues.put("Low", 1);
-                priorityValues.put("Medium", 2);
-                priorityValues.put("High", 3);
+	public Map<String, Object> paginateToDoItems(List<ToDoItem> todoItems, int page, int pageSize) {
+		int totalItems = todoItems.size();
+		int totalPages = (int) Math.ceil((double) totalItems / pageSize);
+		int startIndex = (page - 1) * pageSize;
+		int endIndex = Math.min(startIndex + pageSize, totalItems);
 
-                int comparison1 = 0;
-                if (sortBy1.equals("priority")) {
-                    int priority1Value = priorityValues.getOrDefault(t1.getPriority(), 0);
-                    int priority2Value = priorityValues.getOrDefault(t2.getPriority(), 0);
-                    if (order1.equals("desc")) {
-                        priority1Value = 4 - priority1Value;
-                        priority2Value = 4 - priority2Value;
-                    }
-                    comparison1 = Integer.compare(priority1Value, priority2Value);
-                } else if (sortBy1.equals("dueDate")) {
-                    if (t1.getDueDate() == null && t2.getDueDate() == null) {
-                        comparison1 = 0;
-                    } else if (t1.getDueDate() == null) {
-                        comparison1 = -1;
-                    } else if (t2.getDueDate() == null) {
-                        comparison1 = 1;
-                    } else {
-                        comparison1 = t1.getDueDate().compareTo(t2.getDueDate());
-                    }
-                    if (order1.equals("desc")) {
-                        comparison1 = -comparison1;
-                    }
-                }
+		List<ToDoItem> paginatedItems = todoItems.subList(startIndex, endIndex);
 
-                if (comparison1 != 0) {
-                    return comparison1;
-                } else {
-                    int comparison2 = 0;
-                    if (sortBy2.equals("priority")) {
-                        int priority1Value = priorityValues.getOrDefault(t1.getPriority(), 0);
-                        int priority2Value = priorityValues.getOrDefault(t2.getPriority(), 0);
-                        if (order2.equals("desc")) {
-                            priority1Value = 4 - priority1Value;
-                            priority2Value = 4 - priority2Value;
-                        }
-                        comparison2 = Integer.compare(priority1Value, priority2Value);
-                    } else if (sortBy2.equals("dueDate")) {
-                        if (t1.getDueDate() == null && t2.getDueDate() == null) {
-                            comparison2 = 0;
-                        } else if (t1.getDueDate() == null) {
-                            comparison2 = -1;
-                        } else if (t2.getDueDate() == null) {
-                            comparison2 = 1;
-                        } else {
-                            comparison2 = t1.getDueDate().compareTo(t2.getDueDate());
-                        }
-                        if (order2.equals("desc")) {
-                            comparison2 = -comparison2;
-                        }
-                    }
-                    return comparison2;
-                }
-            }
-        });
+		Map<String, Object> response = new HashMap<>();
+		response.put("items", paginatedItems);
+		response.put("currentPage", page);
+		response.put("totalItems", totalItems);
+		response.put("totalPages", totalPages);
+		response.put("itemsOnPage", paginatedItems.size());
 
-        return todoItems;
-    }
+		return response;
+	}
+
+	public List<ToDoItem> sortToDoItems(List<ToDoItem> todoItems, String sortBy1, String order1, String sortBy2, String order2) {
+		Comparator<ToDoItem> comparator = getComparator(sortBy1, order1, sortBy2, order2);
+		todoItems.sort(comparator);
+		return todoItems;
+	}
+
+	private Comparator<ToDoItem> getComparator(String sortBy1, String order1, String sortBy2, String order2) {
+		Map<String, Integer> priorityValues = Map.of("Low", 1, "Medium", 2, "High", 3);
+
+		Comparator<ToDoItem> comparator1 = getSingleComparator(sortBy1, order1, priorityValues);
+		Comparator<ToDoItem> comparator2 = getSingleComparator(sortBy2, order2, priorityValues);
+
+		return comparator1.thenComparing(comparator2);
+	}
+
+	private Comparator<ToDoItem> getSingleComparator(String sortBy, String order, Map<String, Integer> priorityValues) {
+		Comparator<ToDoItem> comparator;
+		if ("priority".equals(sortBy)) {
+			comparator = Comparator.comparing(item -> priorityValues.getOrDefault(item.getPriority(), 0));
+		} else if ("dueDate".equals(sortBy)) {
+			comparator = Comparator.comparing(ToDoItem::getDueDate, Comparator.nullsLast(Comparator.naturalOrder()));
+		} else {
+			throw new IllegalArgumentException("Invalid sortBy: " + sortBy);
+		}
+
+		if ("desc".equals(order)) {
+			comparator = comparator.reversed();
+		}
+
+		return comparator;
+	}
 
 	public ToDoItem createToDoItem(ToDoItem todoItem) {
-        todoItem.setId(UUID.randomUUID());
-        todoItem.setCreationDate(LocalDateTime.now());
-        todoItem.setDone(false);
+		todoItem.setId(UUID.randomUUID());
+		todoItem.setCreationDate(LocalDateTime.now());
+		todoItem.setDone(false);
+		todoRepository.save(todoItem);
+		return todoItem;
+	}
 
-        
-        todoItems.add(todoItem);
-        return todoItem;
-    }
-	
 	public ToDoItem updateFlag(UUID id, ToDoItem todoItem) {
-		Optional<ToDoItem> existingToDoItem = todoItems.stream()
-	            .filter(item -> item.getId().equals(id))
-	            .findFirst();
-
-	    if (existingToDoItem.isEmpty()) {
-	        throw new RuntimeException("ToDoItem no encontrado");
-	    }
-	    ToDoItem existingItem = existingToDoItem.get();
-	    
-	    if(existingItem.isDone()== false) {
-	    	existingItem.setDone(todoItem.isDone()); 
-		    existingItem.setDoneDate(LocalDateTime.now());
-		    return existingItem;
-	    }else {
-	    	existingItem.setDone(todoItem.isDone()); 
-		    existingItem.setDoneDate(null);
-		    return existingItem;
-	    }
-	    
-	    
+		ToDoItem existingItem = todoRepository.findById(id);
+		existingItem.setDone(todoItem.isDone());
+		existingItem.setDoneDate(todoItem.isDone() ? LocalDateTime.now() : null);
+		todoRepository.save(existingItem);
+		return existingItem;
 	}
 
 	public ToDoItem updateToDoItem(UUID id, ToDoItem updatedToDoItem) {
-		Optional<ToDoItem> existingToDoItem = todoItems.stream()
-	            .filter(item -> item.getId().equals(id))
-	            .findFirst();
-
-	    if (existingToDoItem.isEmpty()) {
-	        throw new RuntimeException("ToDoItem no encontrado");
-	    }
-
-	    ToDoItem existingItem = existingToDoItem.get();
-	    existingItem.setName(updatedToDoItem.getName()); 
-	    existingItem.setDone(updatedToDoItem.isDone()); 
-	    existingItem.setPriority(updatedToDoItem.getPriority());
-	    existingItem.setDueDate(updatedToDoItem.getDueDate());
-	    return existingItem;
+		ToDoItem existingItem = todoRepository.findById(id);
+		existingItem.setName(updatedToDoItem.getName());
+		existingItem.setDone(updatedToDoItem.isDone());
+		existingItem.setPriority(updatedToDoItem.getPriority());
+		existingItem.setDueDate(updatedToDoItem.getDueDate());
+		todoRepository.save(existingItem);
+		return existingItem;
 	}
 
 	public void deleteToDoItem(UUID id) {
-		todoItems.removeIf(item -> item.getId().equals(id));
+		todoRepository.deleteById(id);
 	}
 
 	public List<ToDoItem> fetchAllDoneToDoItems(String priority) {
-        List<ToDoItem> doneItems = todoItems.stream()
-            .filter(item -> item.isDone() && (priority.equals("All") || item.getPriority().equals(priority)))
-            .collect(Collectors.toList());
-
-        return doneItems;
-    }
-
-	public List<ToDoItem> fetchAllItems() {
-		List<ToDoItem> doneItems = todoItems.stream().collect(Collectors.toList());
-
-	    return doneItems;
+		return todoRepository.findByDone(true).stream()
+				.filter(item -> "All".equals(priority) || item.getPriority().equals(priority))
+				.collect(Collectors.toList());
 	}
 
-	
-	
+	public List<ToDoItem> fetchAllItems() {
+		return todoRepository.fetchAllToDoItems();
+	}
+
+	public List<Map<String, Object>> fetchToDoItemsWithFlags() {
+		List<ToDoItem> toDoItems = fetchAllItems();
+		List<Map<String, Object>> toDoItemFlags = new ArrayList<>();
+
+		for (ToDoItem item : toDoItems) {
+			Map<String, Object> itemFlag = new HashMap<>();
+			itemFlag.put("item", item);
+
+			if (item.getDueDate() == null) {
+				itemFlag.put("flag", 0);
+			} else {
+				long weeksBetween = ChronoUnit.WEEKS.between(LocalDate.now(), item.getDueDate());
+
+				if (weeksBetween <= 1) {
+					itemFlag.put("flag", 1);
+				} else if (weeksBetween <= 2) {
+					itemFlag.put("flag", 2);
+				} else {
+					itemFlag.put("flag", 3);
+				}
+			}
+
+			toDoItemFlags.add(itemFlag);
+		}
+
+		return toDoItemFlags;
+	}
+
+	public double fetchAverageCompletionTime(List<ToDoItem> doneItems) {
+		long totalDuration = 0;
+		for (ToDoItem item : doneItems) {
+			Duration duration = Duration.between(item.getCreationDate(), item.getDoneDate());
+			totalDuration += duration.toMillis();
+		}
+		return (double) totalDuration / doneItems.size();
+	}
+
+	public Map<String, Object> fetchAverageCompletionTimes() {
+		List<ToDoItem> doneItemsAll = fetchAllDoneToDoItems("All");
+		List<ToDoItem> doneItemsHigh = fetchAllDoneToDoItems("High");
+		List<ToDoItem> doneItemsMedium = fetchAllDoneToDoItems("Medium");
+		List<ToDoItem> doneItemsLow = fetchAllDoneToDoItems("Low");
+
+		double averageDurationAll = fetchAverageCompletionTime(doneItemsAll);
+		double averageDurationHigh = fetchAverageCompletionTime(doneItemsHigh);
+		double averageDurationMedium = fetchAverageCompletionTime(doneItemsMedium);
+		double averageDurationLow = fetchAverageCompletionTime(doneItemsLow);
+
+		Map<String, Object> response = new HashMap<>();
+		response.put("averageTimeAll", averageDurationAll);
+		response.put("averageTimeHigh", averageDurationHigh);
+		response.put("averageTimeMedium", averageDurationMedium);
+		response.put("averageTimeLow", averageDurationLow);
+
+		return response;
+	}
 }
